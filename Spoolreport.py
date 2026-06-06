@@ -145,7 +145,7 @@ def get_ndt_info(
 
 
 # -------- MAIN WEB APP LOGIC --------
-with st.spinner("⏳ ગૂગલ શીટમાંથી લાઈવ ડેટા લોડ થઈ રહ્યો છે..."):
+with st.spinner("⏳ Please wait..."):
     df = get_web_dataframe(GOOGLE_SHEET_URL, sheet_name="Sheet2")
 
 if df is not None:
