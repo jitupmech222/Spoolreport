@@ -30,8 +30,8 @@ def get_web_dataframe(url, sheet_name="Sheet2"):
             return None
 
         # એક્સેલ ફોર્મેટમાં એક્સપોર્ટ કરવાની ડાયરેક્ટ લિંક
-        d_url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx"
-
+      # નવી સુધારેલી લાઈન:
+d_url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx&sheet={sheet_name}"
         # પંડાસ દ્વારા સીધો લાઈવ ડેટા રીડ કરવો
         df = pd.read_excel(d_url, sheet_name=sheet_name)
         df.columns = df.columns.str.strip()
