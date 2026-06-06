@@ -165,17 +165,21 @@ if df is not None:
                     col for col in required_columns if col in df.columns or col == "NDT Status"
                 ]
 
-                # 📋 લાઈવ ડેટા પ્રીવ્યૂ (હવે પરફેક્ટ ટેબલ ફોર્મેટ અને સાચા ઇન્ડેન્ટેશન સાથે)
                 st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
                 preview_df = usr_df.copy()
+                
                 for col in existing_columns:
                     if col not in preview_df.columns and col == "NDT Status":
                         preview_df["NDT Status"] = ""
 
-                display_df = preview_df[[c for c in existing_columns if c in preview_df.columns]]
+                # 💡 પાકો ઉકેલ: ક્રેશથી બચવા માટે આખા ટેબલના ડેટાને ટેક્સ્ટ/સ્ટ્રિંગમાં ફેરવી દેવો
+                display_df = preview_df[[c for c in existing_columns if c in preview_df.columns]].copy()
+                
+                # તારીખો અને નંબરોમાં આવતા 'NaN' કે 'None' શબ્દોને સાફ કરવા
+                for col in display_df.columns:
+                    display_df[col] = display_df[col].apply(clean_val).astype(str)
 
-               # --- જૂના st.data_editor વાળા ભાગને આનાથી બદલો ---
-                # --- આ કોડ જૂના st.data_editor ની જગ્યાએ મૂકો (એરર ફ્રી ટેબલ) ---
+                # 📊 હવે કન્ફિગરેશન ટેબલ ૧૦૦% સેફ રન થશે
                 st.data_editor(
                     display_df,
                     use_container_width=True,
@@ -187,10 +191,15 @@ if df is not None:
                         "Type of Joint": st.column_config.TextColumn("🛠️ Joint Type", width="small"),
                         "WELD NPD": st.column_config.TextColumn("📏 NPD", width="small"),
                         "Spool Unique No.": st.column_config.TextColumn("🆔 Spool Unique No.", width="medium"),
+                        "Induction bend  DPT Lot no": st.column_config.TextColumn("🔢 Induction Bend LOT", width="medium"),
                         "FIT UP Date": st.column_config.TextColumn("📅 FIT UP Date", width="medium"),
                         "Welder No": st.column_config.TextColumn("👨‍🏭 Welder No", width="small"),
                         "WELD VISUAL REPORT NO": st.column_config.TextColumn("📋 Visual Report", width="medium"),
                         "VISUAL Date": st.column_config.TextColumn("📅 Visual Date", width="medium"),
+                        "DPT LOT NO": st.column_config.TextColumn("🔢 DPT LOT NO", width="small"),
+                        "RT REPORT NO": st.column_config.TextColumn("📋 RT REPORT NO", width="medium"),
+                        "XR NO": st.column_config.TextColumn("⚡ XR NO", width="small"),
+                        "RT LOT NO": st.column_config.TextColumn("🔢 RT LOT NO", width="small"),
                         "NDT Status": st.column_config.TextColumn("🎯 NDT Status", width="medium"),
                     }
                 )
