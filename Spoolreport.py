@@ -188,19 +188,30 @@ if df is not None:
                 if col in df.columns or col == "NDT Status"
             ]
 
-            st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
-            preview_df = usr_df.copy()
-            for col in existing_columns:
-                if col not in preview_df.columns and col == "NDT Status":
-                    preview_df["NDT Status"] = ""
+           # --- જૂના st.dataframe વાળા ભાગની જગ્યાએ આ કોડ મૂકો ---
+                st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
+                preview_df = usr_df.copy()
+                
+                # NDT Status કોલમ જો ન હોય તો એડ કરવી
+                for col in existing_columns:
+                    if col not in preview_df.columns and col == "NDT Status":
+                        preview_df["NDT Status"] = ""
 
-            st.dataframe(
-                preview_df[
-                    [c for c in existing_columns if c in preview_df.columns]
-                ],
-                use_container_width=True,
-                hide_index=True,
-            )
+                # ફક્ત સિલેક્ટેડ કોલમ્સ જ ફિલ્ટર કરવી
+                display_df = preview_df[[c for c in existing_columns if c in preview_df.columns]]
+
+                # 📊 એક્સેલ લુક ટેબલ (કલરફુલ હેડર, ફિલ્ટર અને સોર્ટિંગ સાથે)
+                st.data_editor(
+                    display_df,
+                    use_container_width=True,  # આખી સ્ક્રીનમાં ટેબલ ફેલાવવા માટે
+                    hide_index=True,           # ડાબી બાજુના રો નંબર્સ છુપાવવા માટે
+                    disabled=True,             # યુઝર ટેબલનો ડેટા એડિટ ન કરી શકે તે માટે
+                    column_config={
+                        "ISO No/Drawing No/Line No": st.column_config.TextColumn("ISO / Drawing Number", width="large"),
+                        "Spool Unique No.": st.column_config.TextColumn("Spool Unique No.", width="medium"),
+                        "NDT Status": st.column_config.TextColumn("NDT Status", width="medium"),
+                    }
+                )
 
             # -------- PDF BUILDER FUNCTION --------
             def generate_pdf_bytes():
