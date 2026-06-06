@@ -151,9 +151,9 @@ with st.spinner("⏳ Please wait..."):
 if df is not None:
     full_df = df.copy()
 
-    st.sidebar.header("🔍 સર્ચ પેનલ")
+    st.sidebar.header("")
     usr_no = st.sidebar.text_input(
-        "Spool Unique No. લખો:", placeholder="e.g., A-41101"
+        "Please Enter Spool Unique No.", placeholder="e.g., A-41101"
     ).strip()
 
     if usr_no:
