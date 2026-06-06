@@ -18,7 +18,7 @@ st.title("📊 Spool Detail Report Generator")
 
 
 # -------- GOOGLE SHEET FETCHER --------
-def get_web_dataframe(url, sheet_name='Sheet2'):
+def get_web_dataframe(url, sheet_name="Sheet2"):
     try:
         # લિંક માંથી સાચી File ID અલગ કરવી
         if "spreadsheets/d/" in url:
@@ -29,14 +29,14 @@ def get_web_dataframe(url, sheet_name='Sheet2'):
             st.error("❌ ગૂગલ શીટની લિંકનું ફોર્મેટ ખોટું છે.")
             return None
 
-        # એક્સેલ ફોર્મેટમાં એક્સપોર્ટ કરવાની ડાયરેક્ટ લિંક (સાચી લાઈન)
-        d_url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx&sheet={sheet_name}"
-        
+        # આ સાચી એક્સપોર્ટ લિંક છે જે આખી વર્કબુક ડાઉનલોડ કરે છે જેથી બધી શીટ્સ મળી શકે
+        d_url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx"
+
         # પંડાસ દ્વારા સીધો લાઈવ ડેટા રીડ કરવો
         df = pd.read_excel(d_url, sheet_name=sheet_name)
         df.columns = df.columns.str.strip()
         return df
-        
+
     except Exception as e:
         st.error(f"❌ ગૂગલ શીટ ડેટા લોડ કરવામાં ભૂલ: {e}")
         return None
@@ -304,7 +304,7 @@ def generate_pdf_bytes(usr_no, usr_df, full_df, existing_columns):
 
 # -------- MAIN WEB APP LOGIC --------
 # લાઈવ ગૂગલ શીટ માંથી ડેટા લોડ કરો
-with st.spinner("গૂગલ શીટમાંથી લાઈવ ડેટા લોડ થઈ રહ્યો છે..."):
+with st.spinner("ગૂગલ શીટમાંથી લાઈવ ડેટા લોડ થઈ રહ્યો છે..."):
     df = get_web_dataframe(GOOGLE_SHEET_URL, sheet_name="Sheet2")
 
 if df is not None:
