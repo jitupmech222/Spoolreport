@@ -2,6 +2,7 @@ import datetime
 import io
 import os
 import pandas as pd
+import requests
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
 from reportlab.lib.pagesizes import A4, landscape
@@ -10,14 +11,14 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 import streamlit as st
 
 # -------- CONFIGURATION --------
-# તમારી સાચી ગૂગલ શીટની લિંક
-GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1MbGVYp71KS9RkK07V4Lqmuq6QSN9j7fAsbxJrYCUnXY/edit?usp=sharing"
+# તમારા બીજા ચાલતા પ્રોગ્રામની સાચી લિંક અહીં સેટ કરી દીધી છે
+GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1P1-U_1rhYJ28drrdGgwKBVntP9Uh4nlQ/edit?usp=sharing"
 
 st.set_page_config(page_title="Spool Detail Report Generator", layout="wide")
 st.title("📊 Spool Detail Report Generator")
 
 
-# -------- GOOGLE SHEET FETCHER --------
+# -------- GOOGLE SHEET FETCHER (Pandas Live Setup) --------
 def get_web_dataframe(url, sheet_name="Sheet2"):
     try:
         # લિંક માંથી સાચી File ID અલગ કરવી
@@ -29,13 +30,19 @@ def get_web_dataframe(url, sheet_name="Sheet2"):
             st.error("❌ ગૂગલ શીટની લિંકનું ફોર્મેટ ખોટું છે.")
             return None
 
-        # આ સાચી એક્સપોર્ટ લિંક છે જે આખી વર્કબુક ડાઉનલોડ કરે છે જેથી બધી શીટ્સ મળી શકે
+        # આ ડાયરેક્ટ એક્સપોર્ટ પાથ છે જે ઓનલાઈન શીટને સીધી રીડ કરવા માટે બેસ્ટ છે
         d_url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx"
 
-        # પંડાસ દ્વારા સીધો લાઈવ ડેટા રીડ કરવો
-        df = pd.read_excel(d_url, sheet_name=sheet_name)
-        df.columns = df.columns.str.strip()
-        return df
+        # ડાયરેક્ટ રિક્વેસ્ટ મોકલીને બાઈટ્સ મેળવવા
+        response = requests.get(d_url)
+        if response.status_code == 200:
+            # openpyxl ની જેમ જ BytesIO નો ઉપયોગ કરીને પંડાસમાં શીટ રીડ કરવી
+            df = pd.read_excel(io.BytesIO(response.content), sheet_name=sheet_name)
+            df.columns = df.columns.str.strip()
+            return df
+        else:
+            st.error("❌ ફાઇલમાં શીટ મળી નથી અથવા એક્સેસ નથી.")
+            return None
 
     except Exception as e:
         st.error(f"❌ ગૂગલ શીટ ડેટા લોડ કરવામાં ભૂલ: {e}")
@@ -303,14 +310,12 @@ def generate_pdf_bytes(usr_no, usr_df, full_df, existing_columns):
 
 
 # -------- MAIN WEB APP LOGIC --------
-# લાઈવ ગૂગલ શીટ માંથી ડેટા લોડ કરો
 with st.spinner("ગૂગલ શીટમાંથી લાઈવ ડેટા લોડ થઈ રહ્યો છે..."):
     df = get_web_dataframe(GOOGLE_SHEET_URL, sheet_name="Sheet2")
 
 if df is not None:
     full_df = df.copy()
 
-    # સાઇડબારમાં ઇનપુટ સેટિંગ્સ
     st.sidebar.header("🔍 સર્ચ પેનલ")
     usr_no = st.sidebar.text_input(
         "Spool Unique No. લખો:", placeholder="e.g., A-41101"
@@ -347,11 +352,9 @@ if df is not None:
                 if col in df.columns or col == "NDT Status"
             ]
 
-            # લાઈવ ડેટા સ્ક્રીન પર બતાવવા માટે
             st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
             st.dataframe(usr_df[existing_columns], use_container_width=True)
 
-            # PDF જનરેટ અને ડાઉનલોડ બટન
             st.sidebar.markdown("---")
             st.sidebar.subheader("📥 રીપોર્ટ ડાઉનલોડ")
 
