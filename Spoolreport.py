@@ -174,15 +174,27 @@ if df is not None:
 
                 display_df = preview_df[[c for c in existing_columns if c in preview_df.columns]]
 
+               # --- જૂના st.data_editor વાળા ભાગને આનાથી બદલો ---
                 st.data_editor(
                     display_df,
                     use_container_width=True,
                     hide_index=True,
                     disabled=True,
                     column_config={
-                        "ISO No/Drawing No/Line No": st.column_config.TextColumn("ISO / Drawing Number", width="large"),
-                        "Spool Unique No.": st.column_config.TextColumn("Spool Unique No.", width="medium"),
-                        "NDT Status": st.column_config.TextColumn("NDT Status", width="medium"),
+                        "ISO No/Drawing No/Line No": st.column_config.TextColumn(
+                            "🌐 ISO / Drawing Number", 
+                            width="large",
+                            help="Unique isometric drawing reference"
+                        ),
+                        "Joint No.": st.column_config.TextColumn("📍 Joint No.", width="small"),
+                        "Type of Joint": st.column_config.TextColumn("🛠️ Joint Type", width="small"),
+                        "WELD NPD": st.column_config.TextColumn("📏 NPD", width="small"),
+                        "Spool Unique No.": st.column_config.TextColumn("🆔 Spool Unique No.", width="medium"),
+                        "FIT UP Date": st.column_config.DateColumn("📅 FIT UP Date", format="DD-MM-YYYY"),
+                        "Welder No": st.column_config.TextColumn("👨‍🏭 Welder No", width="small"),
+                        "WELD VISUAL REPORT NO": st.column_config.TextColumn("📋 Visual Report", width="medium"),
+                        "VISUAL Date": st.column_config.DateColumn("📅 Visual Date", format="DD-MM-YYYY"),
+                        "NDT Status": st.column_config.TextColumn("🎯 NDT Status", width="medium"),
                     }
                 )
 
