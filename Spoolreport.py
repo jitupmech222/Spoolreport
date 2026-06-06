@@ -165,45 +165,43 @@ if df is not None:
                     col for col in required_columns if col in df.columns or col == "NDT Status"
                 ]
 
-                st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
-                preview_df = usr_df.copy()
+                # --- જૂના st.data_editor વાળા ભાગને કાઢીને આ નવો કોડ પેસ્ટ કરો ---
+                st.markdown("### 📋 લાઈવ ડેટા પ્રીવ્યૂ")
                 
+                preview_df = usr_df.copy()
                 for col in existing_columns:
                     if col not in preview_df.columns and col == "NDT Status":
                         preview_df["NDT Status"] = ""
 
-                # 💡 પાકો ઉકેલ: ક્રેશથી બચવા માટે આખા ટેબલના ડેટાને ટેક્સ્ટ/સ્ટ્રિંગમાં ફેરવી દેવો
                 display_df = preview_df[[c for c in existing_columns if c in preview_df.columns]].copy()
                 
-                # તારીખો અને નંબરોમાં આવતા 'NaN' કે 'None' શબ્દોને સાફ કરવા
+                # ડેટા ક્લીનિંગ અને સ્ટ્રિંગ કન્વર્ઝન
                 for col in display_df.columns:
                     display_df[col] = display_df[col].apply(clean_val).astype(str)
 
-                # 📊 હવે કન્ફિગરેશન ટેબલ ૧૦૦% સેફ રન થશે
-                st.data_editor(
+                # 📊 SM સોફ્ટવેર પોર્ટલ જેવું જ પ્રોફેશનલ ટેબલ કન્ફિગરેશન
+                st.dataframe(
                     display_df,
                     use_container_width=True,
-                    hide_index=True,
-                    disabled=True,
+                    hide_index=True,           # રો નંબર છુપાવવા માટે
                     column_config={
-                        "ISO No/Drawing No/Line No": st.column_config.TextColumn("🌐 ISO / Drawing Number", width="large"),
-                        "Joint No.": st.column_config.TextColumn("📍 Joint No.", width="small"),
-                        "Type of Joint": st.column_config.TextColumn("🛠️ Joint Type", width="small"),
-                        "WELD NPD": st.column_config.TextColumn("📏 NPD", width="small"),
-                        "Spool Unique No.": st.column_config.TextColumn("🆔 Spool Unique No.", width="medium"),
-                        "Induction bend  DPT Lot no": st.column_config.TextColumn("🔢 Induction Bend LOT", width="medium"),
-                        "FIT UP Date": st.column_config.TextColumn("📅 FIT UP Date", width="medium"),
-                        "Welder No": st.column_config.TextColumn("👨‍🏭 Welder No", width="small"),
-                        "WELD VISUAL REPORT NO": st.column_config.TextColumn("📋 Visual Report", width="medium"),
-                        "VISUAL Date": st.column_config.TextColumn("📅 Visual Date", width="medium"),
-                        "DPT LOT NO": st.column_config.TextColumn("🔢 DPT LOT NO", width="small"),
-                        "RT REPORT NO": st.column_config.TextColumn("📋 RT REPORT NO", width="medium"),
-                        "XR NO": st.column_config.TextColumn("⚡ XR NO", width="small"),
-                        "RT LOT NO": st.column_config.TextColumn("🔢 RT LOT NO", width="small"),
-                        "NDT Status": st.column_config.TextColumn("🎯 NDT Status", width="medium"),
+                        "ISO No/Drawing No/Line No": st.column_config.TextColumn("Line No / Drawing No", width="large"),
+                        "Joint No.": st.column_config.TextColumn("Joint No.", width="small"),
+                        "Type of Joint": st.column_config.TextColumn("Joint Type", width="small"),
+                        "WELD NPD": st.column_config.TextColumn("Thickness (mm)", width="small"), # તમારા સોફ્ટવેર મુજબ
+                        "Spool Unique No.": st.column_config.TextColumn("Spool No.", width="medium"),
+                        "Induction bend  DPT Lot no": st.column_config.TextColumn("LOT Name", width="medium"),
+                        "FIT UP Date": st.column_config.TextColumn("FIT UP Date", width="medium"),
+                        "Welder No": st.column_config.TextColumn("Welder No", width="small"),
+                        "WELD VISUAL REPORT NO": st.column_config.TextColumn("Report No.", width="medium"),
+                        "VISUAL Date": st.column_config.TextColumn("Report Date", width="medium"),
+                        "DPT LOT NO": st.column_config.TextColumn("DPT LOT NO", width="small"),
+                        "RT REPORT NO": st.column_config.TextColumn("RT REPORT NO", width="medium"),
+                        "XR NO": st.column_config.TextColumn("XR NO", width="small"),
+                        "RT LOT NO": st.column_config.TextColumn("RT LOT NO", width="small"),
+                        "NDT Status": st.column_config.TextColumn("NDT Offered Test Status", width="medium"),
                     }
                 )
-
                 # -------- PDF BUILDER FUNCTION --------
                 def generate_pdf_bytes():
                     buffer = io.BytesIO()
