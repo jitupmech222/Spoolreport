@@ -95,7 +95,35 @@ if wb is not None:
                             "VISUAL Date": clean_val(ws[f"AB{r}"].value),
                         }
                     )
+# --- જૂના પ્રીવ્યૂ ડેટા લોજિકની જગ્યાએ આ ભાગ મૂકો ---
+                preview_data = []
+                for r in filtered_rows:
+                    preview_data.append([
+                        clean_val(ws[f"F{r}"].value),
+                        clean_val(ws[f"R{r}"].value),
+                        clean_val(ws[f"J{r}"].value),
+                        clean_val(ws[f"H{r}"].value),
+                        clean_val(ws[f"G{r}"].value),
+                        clean_val(ws[f"AA{r}"].value),
+                        clean_val(ws[f"X{r}"].value),
+                        clean_val(ws[f"AB{r}"].value)
+                    ])
 
+                # હેડર્સના નામ જે એક્સેલ ટેબલમાં બતાવવાના છે
+                preview_headers = [
+                    "ISO/Drawing No", "Joint No.", "Type of Joint", 
+                    "WELD NPD", "Spool Unique No.", "FIT UP Date", 
+                    "Welder No", "VISUAL Date"
+                ]
+
+                st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
+                
+                # સેફ ટેબલ ક્રિએશન (કોઈપણ ક્રેશ વગર)
+                if preview_data:
+                    preview_df = pd.DataFrame(preview_data, columns=preview_headers)
+                    st.dataframe(preview_df, use_container_width=True, hide_index=True)
+                else:
+                    st.warning("⚠️ ડેટા પ્રીવ્યૂ ઉપલબ્ધ નથી.")
                 st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
                 st.dataframe(pd.DataFrame(preview_data), use_container_width=True)
 
