@@ -18,10 +18,7 @@ st.set_page_config(page_title="Spool Detail Report Generator", layout="wide")
 
 # -------- 🔒 MULTI-USER LOGIN SYSTEM --------
 def check_password():
-    """Returns True if the user entered a correct username and password."""
-
-    def login_form():
-        """Form with a callback to store the login status."""
+    if "password_correct" not in st.session_state:
         with st.form(key="login_form"):
             st.subheader("🔑 03 FSP Project - User Login")
             user = st.text_input("User Name", key="username_input")
@@ -39,9 +36,6 @@ def check_password():
                         st.error("❌ Invalid User Name or Password")
                 else:
                     st.error("⚠️ System Error: Users not configured in Secrets.")
-
-    if "password_correct" not in st.session_state:
-        login_form()
         return False
     return st.session_state["password_correct"]
 
@@ -65,14 +59,13 @@ def get_web_dataframe(url, sheet_name="Sheet2"):
             return None
 
         d_url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx"
-
         response = requests.get(d_url)
         if response.status_code == 200:
             df = pd.read_excel(io.BytesIO(response.content), sheet_name=sheet_name)
             df.columns = df.columns.str.strip()
             return df
         else:
-            st.error("❌ ગૂગલ ડ્રાઇવ એક્સેસ નકારી. શેરિંગ સેટિંગ્સ ચેક કરો.")
+            st.error("❌ ગૂગલ ડ્રાઇવ એક્સેસ નકારી.")
             return None
     except Exception as e:
         st.error(f"❌ ડેટા લોડ કરવામાં ભૂલ: {e}")
@@ -125,7 +118,6 @@ def get_ndt_info(full_df, lot_no, lot_col, rep_col, date_col, test_type, xr_col=
             remark += f" and Date is {fmt_date}"
 
             return remark, "fully cleared"
-
     return None, "offered"
 
 
@@ -165,43 +157,86 @@ if df is not None:
                     col for col in required_columns if col in df.columns or col == "NDT Status"
                 ]
 
-                # --- જૂના st.data_editor વાળા ભાગને કાઢીને આ નવો કોડ પેસ્ટ કરો ---
-                st.markdown("### 📋 લાઈવ ડેટા પ્રીવ્યૂ")
-                
+                st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
                 preview_df = usr_df.copy()
+                
                 for col in existing_columns:
                     if col not in preview_df.columns and col == "NDT Status":
                         preview_df["NDT Status"] = ""
 
+                # ડેટા ક્લીનિંગ
                 display_df = preview_df[[c for c in existing_columns if c in preview_df.columns]].copy()
-                
-                # ડેટા ક્લીનિંગ અને સ્ટ્રિંગ કન્વર્ઝન
                 for col in display_df.columns:
                     display_df[col] = display_df[col].apply(clean_val).astype(str)
 
-                # 📊 SM સોફ્ટવેર પોર્ટલ જેવું જ પ્રોફેશનલ ટેબલ કન્ફિગરેશન
-                st.dataframe(
-                    display_df,
-                    use_container_width=True,
-                    hide_index=True,           # રો નંબર છુપાવવા માટે
-                    column_config={
-                        "ISO No/Drawing No/Line No": st.column_config.TextColumn("Line No / Drawing No", width="large"),
-                        "Joint No.": st.column_config.TextColumn("Joint No.", width="small"),
-                        "Type of Joint": st.column_config.TextColumn("Joint Type", width="small"),
-                        "WELD NPD": st.column_config.TextColumn("Thickness (mm)", width="small"), # તમારા સોફ્ટવેર મુજબ
-                        "Spool Unique No.": st.column_config.TextColumn("Spool No.", width="medium"),
-                        "Induction bend  DPT Lot no": st.column_config.TextColumn("LOT Name", width="medium"),
-                        "FIT UP Date": st.column_config.TextColumn("FIT UP Date", width="medium"),
-                        "Welder No": st.column_config.TextColumn("Welder No", width="small"),
-                        "WELD VISUAL REPORT NO": st.column_config.TextColumn("Report No.", width="medium"),
-                        "VISUAL Date": st.column_config.TextColumn("Report Date", width="medium"),
-                        "DPT LOT NO": st.column_config.TextColumn("DPT LOT NO", width="small"),
-                        "RT REPORT NO": st.column_config.TextColumn("RT REPORT NO", width="medium"),
-                        "XR NO": st.column_config.TextColumn("XR NO", width="small"),
-                        "RT LOT NO": st.column_config.TextColumn("RT LOT NO", width="small"),
-                        "NDT Status": st.column_config.TextColumn("NDT Offered Test Status", width="medium"),
+                # તમારા સોફ્ટવેર મુજબના સાચા હેડર્સના નામનું મેપિંગ
+                headers_mapping = {
+                    "ISO No/Drawing No/Line No": "Line No / Drawing No",
+                    "Joint No.": "Joint No.",
+                    "Type of Joint": "Joint Type",
+                    "WELD NPD": "Thickness (mm)",
+                    "Spool Unique No.": "Spool No.",
+                    "Induction bend  DPT Lot no": "LOT Name",
+                    "FIT UP Date": "FIT UP Date",
+                    "Welder No": "Welder No",
+                    "WELD VISUAL REPORT NO": "Report No.",
+                    "VISUAL Date": "Report Date",
+                    "DPT LOT NO": "DPT LOT NO",
+                    "RT REPORT NO": "RT REPORT NO",
+                    "XR NO": "XR NO",
+                    "RT LOT NO": "RT LOT NO",
+                    "NDT Status": "NDT Offered Test Status"
+                }
+
+                # 🎨 🛠️ કસ્ટમ HTML ટેબલ જનરેશન (કંપની બ્લુ હેડર અને ગ્રીડ બોર્ડર સાથે)
+                html_table = """
+                <style>
+                    .sm-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-family: Arial, sans-serif;
+                        font-size: 13px;
+                        margin-bottom: 20px;
                     }
-                )
+                    .sm-table th {
+                        background-color: #345A8A !important;  /* કંપની જેવો ડાર્ક બ્લુ કલર */
+                        color: white !important;
+                        font-weight: bold;
+                        text-align: center;
+                        padding: 10px;
+                        border: 1px solid #B0C4DE !important; /* લાઈટ બ્લુ/ગ્રે બોર્ડર */
+                    }
+                    .sm-table td {
+                        border: 1px solid #D3D3D3 !important;   /* દરેક સેલની આસપાસ પાકી બોર્ડર */
+                        padding: 8px;
+                        text-align: center;
+                        color: #333333;
+                    }
+                    .sm-table tr:nth-child(even) {
+                        background-color: #F9FBFD; /* ઝીબ્રા રો લુક */
+                    }
+                </style>
+                <table class="sm-table">
+                    <thead>
+                        <tr>
+                """
+                # હેડર્સ ઉમેરવા
+                for col in display_df.columns:
+                    display_name = headers_mapping.get(col, col)
+                    html_table += f"<th>{display_name}</th>"
+                html_table += "</tr></thead><tbody>"
+
+                # રો ડેટા ઉમેરવો
+                for _, row in display_df.iterrows():
+                    html_table += "<tr>"
+                    for val in row:
+                        html_table += f"<td>{val if val else '-'}</td>"
+                    html_table += "</tr>"
+                html_table += "</tbody></table>"
+
+                # HTML ટેબલ સ્ક્રીન પર રેન્ડર કરવું
+                st.markdown(html_table, unsafe_allow_html=True)
+
                 # -------- PDF BUILDER FUNCTION --------
                 def generate_pdf_bytes():
                     buffer = io.BytesIO()
