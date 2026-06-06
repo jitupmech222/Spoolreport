@@ -57,7 +57,7 @@ if not check_password():
     st.stop()
 
 # સફળ લોગિન પછી મેઈન વેબ એપ ઓપન થશે
-st.title("📊 Spool Detail Report Generator")
+st.title("📊 Quality Data/Spool Report")
 st.sidebar.markdown(f"👤 **Welcome, {st.session_state.get('current_user', 'User')}**")
 
 
