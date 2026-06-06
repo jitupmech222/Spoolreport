@@ -16,30 +16,49 @@ GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1P1-U_1rhYJ28drrdGgwK
 st.set_page_config(page_title="Spool Detail Report Generator", layout="wide")
 
 
-# -------- 🔒 LOGIN SYSTEM (As per your working program) --------
+# -------- 🔒 MULTI-USER LOGIN SYSTEM --------
 def check_password():
+    """Returns True if the user entered a correct username and password."""
+
+    def login_form():
+        """Form with a callback to store the login status."""
+        with st.form(key="login_form"):
+            st.subheader("🔑 03 FSP Project - User Login")
+            user = st.text_input("User Name", key="username_input")
+            pwd = st.text_input("Password", type="password", key="password_input")
+            submit = st.form_submit_button("Login")
+
+            if submit:
+                # Streamlit Secrets માંથી લિસ્ટ મેળવવું
+                if "users" in st.secrets:
+                    valid_users = st.secrets["users"]
+                    # ચેક કરવું કે યુઝર લિસ્ટમાં છે અને પાસવર્ડ મેચ થાય છે કે નહીં
+                    if user in valid_users and str(pwd) == str(
+                        valid_users[user]
+                    ):
+                        st.session_state["password_correct"] = True
+                        st.session_state["current_user"] = user
+                        st.rerun()
+                    else:
+                        st.error("❌ Invalid User Name or Password")
+                else:
+                    st.error(
+                        "⚠️ System Error: Users not configured in Streamlit Secrets."
+                    )
+
     if "password_correct" not in st.session_state:
-        st.text_input(
-            "Please Enter Password",
-            type="password",
-            on_change=lambda: st.session_state.update(
-                {
-                    "password_correct": st.session_state.pwd
-                    == st.secrets["password"]
-                }
-            ),
-            key="pwd",
-        )
+        login_form()
         return False
     return st.session_state["password_correct"]
 
 
-# જો પાસવર્ડ ખોટો હોય તો પ્રોગ્રામ અહીં જ અટકી જશે, આગળનો ડેટા નહીં દેખાય
+# જો લોગિન ન થયું હોય તો પ્રોગ્રામ અહીં જ અટકી જશે
 if not check_password():
     st.stop()
 
-# પાસવર્ડ સાચો હોય તો જ નીચેનું ટાઈટલ અને વેબ એપ ઓપન થશે
+# સફળ લોગિન પછી મેઈન વેબ એપ ઓપન થશે
 st.title("📊 Spool Detail Report Generator")
+st.sidebar.markdown(f"👤 **Welcome, {st.session_state.get('current_user', 'User')}**")
 
 
 # -------- GOOGLE SHEET FETCHER --------
