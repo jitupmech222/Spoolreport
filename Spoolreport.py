@@ -329,6 +329,7 @@ if df is not None:
         else:
             st.success(f"✅ {len(usr_df)} રેકોર્ડ્સ મળ્યા!")
 
+           # --- આ ભાગને કોડમાંrequired_columns ની જગ્યાએ રિપ્લેસ કરો ---
             required_columns = [
                 "ISO No/Drawing No/Line No",
                 "Joint No.",
@@ -344,14 +345,23 @@ if df is not None:
                 "RT REPORT NO",
                 "XR NO",
                 "RT LOT NO",
-                "NDT Status",
+                "NDT Status"
             ]
-            existing_columns = [
-                col
-                for col in required_columns
-                if col in df.columns or col == "NDT Status"
-            ]
+            
+            # 💡 ડાયનેમિક કોલમ ચેકિંગ (જેથી કોઈ સ્પેલિંગ મિસિંગ હોય તો પણ એરર ન આવે)
+            existing_columns = []
+            for col in required_columns:
+                if col == "NDT Status":
+                    existing_columns.append(col)
+                elif col in usr_df.columns:
+                    existing_columns.append(col)
+                else:
+                    # જો કોઈ કોલમ ન મળે તો પાયથોન બેકઅપ તરીકે સ્પેસ વગર અથવા કેપિટલ ચેક કરશે
+                    clean_cols = {c.strip(): c for c in usr_df.columns}
+                    if col.strip() in clean_cols:
+                        existing_columns.append(clean_cols[col.strip()])
 
+            # લાઈવ ડેટા સ્ક્રીન પર બતાવવા માટે
             st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
             st.dataframe(usr_df[existing_columns], use_container_width=True)
 
