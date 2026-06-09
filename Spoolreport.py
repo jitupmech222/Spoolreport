@@ -20,7 +20,7 @@ st.set_page_config(page_title="Spool Detail Report Generator", layout="wide")
 def check_password():
     if "password_correct" not in st.session_state:
         with st.form(key="login_form"):
-            st.subheader("🔑 03 FSP Project - User Login")
+            st.subheader("Project - User Login")
             user = st.text_input("User Name", key="username_input")
             pwd = st.text_input("Password", type="password", key="password_input")
             submit = st.form_submit_button("Login")
