@@ -122,15 +122,15 @@ def get_ndt_info(full_df, lot_no, lot_col, rep_col, date_col, test_type, xr_col=
 
 
 # -------- MAIN WEB APP LOGIC --------
-with st.spinner("⏳ ગૂગલ શીટમાંથી લાઈવ ડેટા લોડ થઈ રહ્યો છે..."):
+with st.spinner("Please Wait..."):
     df = get_web_dataframe(GOOGLE_SHEET_URL, sheet_name="Sheet2")
 
 if df is not None:
     full_df = df.copy()
 
-    st.sidebar.header("🔍 સર્ચ પેનલ")
+    st.sidebar.header("")
     usr_no = st.sidebar.text_input(
-        "Spool Unique No. લખો:", placeholder="e.g., A-41101"
+        "Please Enter Spool Unique No.", placeholder="e.g., A-41101"
     ).strip()
 
     if usr_no:
