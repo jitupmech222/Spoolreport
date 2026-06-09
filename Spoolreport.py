@@ -43,7 +43,7 @@ def check_password():
 if not check_password():
     st.stop()
 
-st.title("📊 Spool Detail Report Generator")
+st.title("📊Quality Data/Spool Report")
 st.sidebar.markdown(f"👤 **Welcome, {st.session_state.get('current_user', 'User')}**")
 
 
