@@ -13,7 +13,7 @@ import streamlit as st
 # -------- CONFIGURATION --------
 GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1P1-U_1rhYJ28drrdGgwKBVntP9Uh4nlQ/edit?usp=sharing"
 
-st.set_page_config(page_title="Spool Detail Report Generator", layout="wide")
+st.set_page_config(page_title="Quality Data/Spool Report", layout="wide")
 
 
 # -------- 🔒 MULTI-USER LOGIN SYSTEM --------
