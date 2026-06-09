@@ -139,7 +139,7 @@ if df is not None:
         if usr_df.empty:
             st.warning(f"⚠️ {usr_no} માટે કોઈ રેકોર્ડ મળ્યો નથી.")
         else:
-            st.success(f"✅ {len(usr_df)} રેકોર્ડ્સ મળ્યા!")
+            st.success(f"✅ {len(usr_df)} Record Found!")
             
             st.sidebar.markdown("---")
             view_report = st.sidebar.button("🚀 Click to View Report", use_container_width=True)
@@ -157,7 +157,7 @@ if df is not None:
                     col for col in required_columns if col in df.columns or col == "NDT Status"
                 ]
 
-                st.subheader("📋 લાઈવ ડેટા પ્રીવ્યૂ")
+                st.subheader("📋 Data Preview")
                 preview_df = usr_df.copy()
                 
                 for col in existing_columns:
@@ -359,7 +359,7 @@ if df is not None:
                     return buffer
 
                 st.sidebar.markdown("---")
-                st.sidebar.subheader("📥 રીપોર્ટ ડાઉનલોડ")
+                st.sidebar.subheader("📥 Report Download")
 
                 pdf_data = generate_pdf_bytes()
                 st.sidebar.download_button(
